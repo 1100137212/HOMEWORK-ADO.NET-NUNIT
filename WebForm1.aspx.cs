@@ -1,0 +1,47 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace WebApplication1
+{
+    /// <summary>
+    /// DataReader
+    /// </summary>
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            btnSearch_Click(null, null);
+        }
+
+        protected void btnSearch_Click(object sender, EventArgs e)
+        {
+            lbResult.Items.Clear();
+
+            using (SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["ADODBConnectionString"].ConnectionString))
+            {
+                cn.Open();
+                using (SqlCommand cmd = cn.CreateCommand())
+                {
+                    cmd.CommandText = "select * from student where student_id like @s_id";
+                    cmd.Parameters.Add(new SqlParameter("@s_id", "%" + txtSearch.Text + "%"));
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while ((dr.Read()))
+                        {
+                            lbResult.Items.Add(dr.GetValue(0).ToString() + "\t" + dr.GetValue(1).ToString());
+                        }
+                        dr.Close();
+                    }
+                }
+
+            }
+        }
+
+    }
+}
